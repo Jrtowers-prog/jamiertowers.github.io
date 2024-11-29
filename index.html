@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="index.css" rel="stylesheet">
+        <title id="tab"> Math Cheatsheet </title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="A simple math cheatsheet highlighting common operators and their effects on integers.">
+        <meta name="keywords" content="Math, Cheatsheet, Operators, Integers, Exponentiation, Prime Numbers">
+        
+        
+    </head>
+    <body id="main-bit">
+        <h1>Welcome to my Cheatsheet</h1>
+        <br>
+        <br>
+        <div class="Menu">
+            <h2> Menu </h2>
+            <nav>
+                <a href="#table">View Table</a>
+                <br>
+                <a href="#introduction-paragraph"> Useful Information</a>
+                <br>
+                <a href="#Math-Photo">View Gallery</a>
+                <br>
+                <a href="#Footer"> Contact Us</a>
+                <br>
+                <br>
+                <button id="theme-toggle"> Toggle Dark Mode</button>
+                <script>
+                    const button = document.getElementById("theme-toggle");
+                    button.addEventListener("click", () => {
+                        document.body.classList.toggle("dark-mode");
+                    });
+                </script>
+            </nav>
+        </div>
+        <br>
+        <br>
+        <br>
+        <p id="introduction-paragraph">
+            Please find below a small sheet compiling the functionality of common mathematical operators by their effect on small integers.
+        </p>
+        <br>
+        <br>
+        <div>
+        <table id="table">
+            <caption></caption>
+            <thead>
+                <tr>
+                    <th><br></th>
+                    <th scope="col">Exponent (e)</th>
+                    <th scope="col">Square^2</th>
+                    <th scope="col">Prime</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td class="e-column">1</td>
+                    <td>1</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td class="e-column">2^e</td>
+                    <td>4</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td class="e-column">3^e</td>
+                    <td>9</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td><strong>4</strong></td>
+                    <td class="e-column">4^e</td>
+                    <td>16</td>
+                    <td>No</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>  
+        <figure>
+            <img src="https://wallpaperaccess.com/full/5777660.jpg" alt="Stock math photo." lang="en" id="Math-Photo">
+            <figcaption>Look at this cool math!</figcaption>
+        </figure>
+    </body>
+    <br>
+    <br>
+    <footer id="Footer">
+        <h2 id="Contact-Detail-Header"><strong>Contact Us:</strong></h2>
+        <p> Email: test@test.com </p>
+        <p> Phone: 0123456789 </p>
+    </footer>
+</html>
