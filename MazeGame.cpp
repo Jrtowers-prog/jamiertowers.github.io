@@ -39,21 +39,25 @@ class Maze {
                 maze[enemyX][enemyY] = ' ';
                 enemyX--;
                 maze[enemyX][enemyY] = 'E';
+                break;
             case 2:
               if ((maze[enemyX+1][enemyY] != '#') && ((enemyX+1) < rows)))
                 maze[enemyX][enemyY] = ' ';
                 enemyX++;
                 maze[enemyX][enemyY] = 'E';
+                break;
             case 3:
               if ((maze[enemyX][enemyY-1] != '#') && ((enemyY-1) >= 0)))
                 maze[enemyX][enemyY] = ' ';
                 enemyY--;
                 maze[enemyX][enemyY] = 'E';
+                break;
             case 4:
               if ((maze[enemyX][enemyY+1] != '#') && ((enemyX-1) < cols)))
                 maze[enemyX][enemyY] = ' ';
                 enemyY++;
                 maze[enemyX][enemyY] = 'E';
+                break;
           }
         }
         void movePlayer(){
@@ -105,6 +109,9 @@ class Puzzle {
 
 int main() {
     void initialisemaze();
+
+return 0;  
+}
 
 return 0;  
 }
