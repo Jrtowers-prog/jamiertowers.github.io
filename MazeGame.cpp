@@ -18,14 +18,9 @@ class Maze {
         int playerX, playerY;
         int rows = 15; //dimensions
         int cols = 15;
-        bool isValid (int x, int y){  //checks if cell is valid for carving (not outside paramters of map)
-              if (x >= 0 && x < rows && y >= 0 && y < cols && !visitedcells[x][y]){
-                return true;
-              }
-              else {
-                return false;
-              }
-            }
+        bool isValid (int x, int y, vector<vector<bool>>& visitedcells){  //checks if cell is valid for carving (not outside paramters of map), visitedcells vector is 2d and passed by reference meaning later functions can directly modify the values in this vector
+              return (x >= 0 && x < rows && y >= 0 && y < cols && !visitedcells[x][y]);
+        }
         
         void initialisemaze() {
             maze.resize(rows, vector<char>(cols, '#')); //initializes maze with dimensions cols and rows, also fills with #'s so that the carving algorithm works
@@ -107,7 +102,7 @@ class Maze {
         void carve() {
             int startX = 1; //carve start
             int startY = 1;
-            vector<vector<bool>> visitedcells(rows, vector<bool>(cols, false)); //matrix for visited cells
+            vector<vector<bool>> visitedcells(rows, vector<bool>(cols, false));
             vector<pair<int, int>> directions = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}}; //directions stored in this vector, done in 2's to make sure we skip over walls
             vector<pair<int, int>> walls; //surrounding walls from current position to be carved
             maze[startX][startY] = ' ';
@@ -134,7 +129,7 @@ class Maze {
                     int nextX = wallX + directions[i].first / 2; //divide by 2 as we are finding the cells position relative from the position of the wall. The cell is immediately next to a wall and therefore we don't jump by 2 but by 1 and have to divide the direction vector by 2.
                     int nextY = wallY + directions[i].second / 2;
 
-                    if (isValid(nextX,nextY)){ //checking next cells validity
+                    if (isValid(nextX,nextY, visitedcells)){ //checking next cells validity, because visitedcells prev passed by reference, isvalid is able to check any changes.
                         maze[nextX][nextY]=' '; //carving
                         maze[wallX][wallY]=' ';
                         visitedcells[nextX][nextY]=true; //add to visited list
@@ -168,3 +163,4 @@ int main() {
 
     return 0;  
 }
+
