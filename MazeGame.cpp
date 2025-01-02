@@ -1,166 +1,210 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
-#include <chrono>
 #include <vector>
-#include <cmath>
-#include <queue>
-#include <utility>
 #include <cstdlib>
+#include <ctime>
+#include <conio.h> 
 using namespace std;
 
-vector<vector<char>> maze; //declaring global 2D vector to store map
-
 class Maze {
+public:
+    int enemyX, enemyY;
+    int playerX, playerY;
+    int rows, cols;
 
-    public:
-        int enemyX, enemyY;
-        int playerX, playerY;
-        int rows = 15; //dimensions
-        int cols = 15;
-        bool isValid (int x, int y, vector<vector<bool>>& visitedcells){  //checks if cell is valid for carving (not outside paramters of map), visitedcells vector is 2d and passed by reference meaning later functions can directly modify the values in this vector
-              return (x >= 0 && x < rows && y >= 0 && y < cols && !visitedcells[x][y]);
-        }
-        
-        void initialisemaze() {
-            maze.resize(rows, vector<char>(cols, '#')); //initializes maze with dimensions cols and rows, also fills with #'s so that the carving algorithm works
-            playerX = 1;
-            playerY = 1;
-            maze[playerX][playerY] = 'P'; //player's initial position indicated by P icon
-        }
+    // Store both the maze and visitedcells in the class
+    vector<vector<char>> maze;
+    vector<vector<bool>> visitedcells;
 
-        void displaymaze() {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    cout << maze[i][j];
-                }
-                cout << endl;
+    // Constructor
+    Maze() {
+        rows = 25;
+        cols = 25;
+        // Make the maze 25x25 of '#' initially
+        maze.resize(rows, vector<char>(cols, '#'));
+        // Make visitedcells the same size, all false
+        visitedcells.resize(rows, vector<bool>(cols, false));
+
+        enemyX = enemyY = 0;
+        playerX = playerY = 0;
+    }
+
+    bool isValid(int x, int y, vector<vector<bool>>& visited) {
+        return x >= 0 && x < rows && y >= 0 && y < cols && !visited[x][y];
+    }
+
+    // Replaces "initialisemaze()" since the constructor does it
+    // But you can keep it if you prefer manually resetting the maze each time.
+    void initialisemaze() {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                maze[i][j] = '#';
+                visitedcells[i][j] = false;
             }
+        }
+    }
+
+    void displaymaze() {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                cout << maze[i][j];
+            }
+            cout << endl;
+        }
+    }
+
+    // Simple DFS
+    void carveDFS(int x, int y) {
+        visitedcells[x][y] = true;
+        maze[x][y] = ' ';
+
+        // directions is a 4x2 array
+        int directions[4][2] = {
+            {-2, 0},  // up
+            {2, 0},   // down
+            {0, -2},  // left
+            {0, 2}    // right
         };
-        
-        void moveEnemy() {
-            int enemydirection = (rand() % 4) + 1;
-            switch (enemydirection) {
-                case 1:
-                    if ((maze[enemyX - 1][enemyY] != '#') && ((enemyX - 1) >= 0)) {
-                        maze[enemyX][enemyY] = ' ';
-                        enemyX--;
-                        maze[enemyX][enemyY] = 'E';
-                    }
-                    break;
-                case 2:
-                    if ((maze[enemyX + 1][enemyY] != '#') && ((enemyX + 1) < rows)) {
-                        maze[enemyX][enemyY] = ' ';
-                        enemyX++;
-                        maze[enemyX][enemyY] = 'E';
-                    }
-                    break;
-                case 3:
-                    if ((maze[enemyX][enemyY - 1] != '#') && ((enemyY - 1) >= 0)) {
-                        maze[enemyX][enemyY] = ' ';
-                        enemyY--;
-                        maze[enemyX][enemyY] = 'E';
-                    }
-                    break;
-                case 4:
-                    if ((maze[enemyX][enemyY + 1] != '#') && ((enemyY + 1) < cols)) {
-                        maze[enemyX][enemyY] = ' ';
-                        enemyY++;
-                        maze[enemyX][enemyY] = 'E';
-                    }
-                    break;
-            }
-        }
-        
-        void movePlayer() {
-            char playerdirection;
-            cin >> playerdirection;
-            while (!(playerdirection == 'W' || playerdirection == 'S' || playerdirection == 'A' || playerdirection == 'D' || playerdirection == 'w' || playerdirection == 's' || playerdirection == 'a' || playerdirection == 'd')) {
-                cout << "Please enter a valid move.";
-                cin >> playerdirection;
-            }
-            maze[playerX][playerY] = ' ';
-            if ((playerdirection == 'W' || playerdirection == 'w') && (maze[playerX - 1][playerY] != '#') && ((playerX - 1) >= 0)) {
-                playerX--;
-                maze[playerX][playerY] = 'P';
-            }
-            if ((playerdirection == 'S' || playerdirection == 's') && (maze[playerX + 1][playerY] != '#') && ((playerX + 1) < rows)) {
-                playerX++;
-                maze[playerX][playerY] = 'P';
-            }
-            if ((playerdirection == 'A' || playerdirection == 'a') && (maze[playerX][playerY - 1] != '#') && ((playerY - 1) >= 0)) {
-                playerY--;
-                maze[playerX][playerY] = 'P';
-            }
-            if ((playerdirection == 'D' || playerdirection == 'd') && (maze[playerX][playerY + 1] != '#') && ((playerY + 1) < cols)) {
-                playerY++;
-                maze[playerX][playerY] = 'P';
-            }
 
+        // shuffle directions for randomness
+        for (int i = 0; i < 4; i++) {
+            int r = rand() % 4;
+            // swap directions[i] with directions[r]
+            int tmpX = directions[i][0];
+            int tmpY = directions[i][1];
+            directions[i][0] = directions[r][0];
+            directions[i][1] = directions[r][1];
+            directions[r][0] = tmpX;
+            directions[r][1] = tmpY;
         }
 
-        void carve() {
-            int startX = 1; //carve start
-            int startY = 1;
-            vector<vector<bool>> visitedcells(rows, vector<bool>(cols, false));
-            vector<pair<int, int>> directions = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}}; //directions stored in this vector, done in 2's to make sure we skip over walls
-            vector<pair<int, int>> walls; //surrounding walls from current position to be carved
-            maze[startX][startY] = ' ';
-            visitedcells[startX][startY]= true;
+        // check each direction
+        for (int i = 0; i < 4; i++) {
+            int nx = x + directions[i][0];
+            int ny = y + directions[i][1];
 
-            for (int i = 0; i < directions.size(); i++){  //adding surrounding walls to walls list
-                int wallX = startX + directions[i].first;
-                int wallY = startY + directions[i].second;
-                if (wallX < rows && wallX > 0 && wallY > 0 && wallY < cols){  //checking if surrounding walls are valid before adding to list
-                    walls.push_back({wallX,wallY});
+            // bounds check
+            if (nx > 0 && nx < rows - 1 && ny > 0 && ny < cols - 1) {
+                if (!visitedcells[nx][ny]) {
+                    // carve the wall between (x,y) and (nx,ny)
+                    int midX = (x + nx) / 2;
+                    int midY = (y + ny) / 2;
+                    maze[midX][midY] = ' ';
+
+                    // recurse
+                    carveDFS(nx, ny);
                 }
             }
-
-            while (!(walls.size() == 0)){ //loop iterates until surrounding walls are all used
-                int carvechoice = rand() % walls.size(); //pick number from 1 to number of surrounding walls
-                pair<int,int> wallchoice = walls[carvechoice]; //chosen wall
-                walls[carvechoice]= walls.back(); //replacing random choice with back element them popping back element in next line to effectively remove the chosen wall from the walls list as it is now going to be carved.
-                walls.pop_back(); //swap and pop technique eliminates chosen wall from wall list as it has been chosen.
-
-                int wallX = wallchoice.first; //setting coordinates of the randomly selected wall
-                int wallY = wallchoice.second;
-                
-                for (int i = 0; i < directions.size(); i++) { //loop iterating through up, down, left, right options.
-                    int nextX = wallX + directions[i].first / 2; //divide by 2 as we are finding the cells position relative from the position of the wall. The cell is immediately next to a wall and therefore we don't jump by 2 but by 1 and have to divide the direction vector by 2.
-                    int nextY = wallY + directions[i].second / 2;
-
-                    if (isValid(nextX,nextY, visitedcells)){ //checking next cells validity, because visitedcells prev passed by reference, isvalid is able to check any changes.
-                        maze[nextX][nextY]=' '; //carving
-                        maze[wallX][wallY]=' ';
-                        visitedcells[nextX][nextY]=true; //add to visited list
-                    }
-
-                     for (int j = 0; j < directions.size(); j++) {
-                         int nextWallX = nextX + directions[j].first;
-                         int nextWallY = nextY + directions[j].second;
-                         if (nextWallX > 0 && nextWallX < rows - 1 && nextWallY > 0 && nextWallY < cols - 1) {
-                             walls.push_back({nextWallX, nextWallY});
-                         }
-                     }
-                }
-            }
-           
-
-            
-
-            
-
         }
+    }
+
+    // Carve wrapper
+    void carve() {
+        // Reset everything to walls + unvisited
+        initialisemaze();
+        // Start the DFS at (1,1)
+        carveDFS(1, 1);
+    }
+
+    // The rest of your methods
+    void placeCharacters() {
+        playerX = 1;
+        playerY = 1;
+        maze[playerX][playerY] = 'P';
+
+        enemyX = rows - 2;
+        enemyY = cols - 2;
+        maze[enemyX][enemyY] = 'E';
+    }
+
+    void moveEnemy() {
+        int enemydirection = (rand() % 4) + 1;
+        switch (enemydirection) {
+        case 1:
+            if ((maze[enemyX - 1][enemyY] != '#') && ((enemyX - 1) >= 0)) {
+                maze[enemyX][enemyY] = ' ';
+                enemyX--;
+                maze[enemyX][enemyY] = 'E';
+            }
+            break;
+        case 2:
+            if ((maze[enemyX + 1][enemyY] != '#') && ((enemyX + 1) < rows)) {
+                maze[enemyX][enemyY] = ' ';
+                enemyX++;
+                maze[enemyX][enemyY] = 'E';
+            }
+            break;
+        case 3:
+            if ((maze[enemyX][enemyY - 1] != '#') && ((enemyY - 1) >= 0)) {
+                maze[enemyX][enemyY] = ' ';
+                enemyY--;
+                maze[enemyX][enemyY] = 'E';
+            }
+            break;
+        case 4:
+            if ((maze[enemyX][enemyY + 1] != '#') && ((enemyY + 1) < cols)) {
+                maze[enemyX][enemyY] = ' ';
+                enemyY++;
+                maze[enemyX][enemyY] = 'E';
+            }
+            break;
+        }
+    }
+
+    void movePlayer() {
+        char playerdirection = _getch();
+        while (!(playerdirection == 'W' || playerdirection == 'S' || playerdirection == 'A' || playerdirection == 'D' || playerdirection == 'w' || playerdirection == 's' || playerdirection == 'a' || playerdirection == 'd')) {
+            cout << "Please enter a valid move.";
+              playerdirection = _getch();
+        }
+        maze[playerX][playerY] = ' ';
+        if ((playerdirection == 'W' || playerdirection == 'w') && (maze[playerX - 1][playerY] != '#') && ((playerX - 1) >= 0)) {
+            playerX--;
+            maze[playerX][playerY] = 'P';
+        }
+        if ((playerdirection == 'S' || playerdirection == 's') && (maze[playerX + 1][playerY] != '#') && ((playerX + 1) < rows)) {
+            playerX++;
+            maze[playerX][playerY] = 'P';
+        }
+        if ((playerdirection == 'A' || playerdirection == 'a') && (maze[playerX][playerY - 1] != '#') && ((playerY - 1) >= 0)) {
+            playerY--;
+            maze[playerX][playerY] = 'P';
+        }
+        if ((playerdirection == 'D' || playerdirection == 'd') && (maze[playerX][playerY + 1] != '#') && ((playerY + 1) < cols)) {
+            playerY++;
+            maze[playerX][playerY] = 'P';
+        }
+
+    }
 };
 
 
-
 int main() {
+    srand(time(0));
     Maze gameMaze;
-    gameMaze.initialisemaze();
+
+    // If you do carve() inside the constructor, you can skip this,
+    // but let's keep it explicit:
     gameMaze.carve();
-    gameMaze.displaymaze();
+    gameMaze.placeCharacters();
 
-    return 0;  
+    system("cls");
+
+    while (true) {
+        // Clear screen by resetting cursor
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        COORD Position = { 0, 0 };
+        SetConsoleCursorPosition(hOut, Position);
+
+        gameMaze.displaymaze();
+
+        if (_kbhit()) {
+            gameMaze.movePlayer();
+        }
+
+        gameMaze.moveEnemy();
+        Sleep(100);
+    }
+    return 0;
 }
-
